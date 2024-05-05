@@ -1,8 +1,5 @@
 {
   "name": "web-scraper",
-  "scripts": {
-    "dev": "bun serve ./main.ts"
-  },
   "dependencies": {
     "rss-parser": "^3.13.0"
   },
