@@ -1,0 +1,21 @@
+{
+	"name": "@newslet/db",
+	"main": "./src/index.ts",
+	"publishConfig": {
+		"access": "restricted"
+	},
+	"type": "module",
+	"scripts": {
+		"db:generate": "drizzle-kit generate:sqlite",
+		"db:migrate": "dotenv -e ../../.env -- tsx ./migrator.ts"
+	},
+	"devDependencies": {
+		"dotenv-cli": "^7.4.1",
+		"drizzle-kit": "^0.20.17",
+		"tsx": "^4.9.1"
+	},
+	"dependencies": {
+		"@libsql/client": "^0.6.0",
+		"drizzle-orm": "^0.30.10"
+	}
+}

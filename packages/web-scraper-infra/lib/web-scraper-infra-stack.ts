@@ -1,19 +1,19 @@
-import { Duration, Stack, StackProps } from "aws-cdk-lib";
-import * as sns from "aws-cdk-lib/aws-sns";
-import * as subs from "aws-cdk-lib/aws-sns-subscriptions";
-import * as sqs from "aws-cdk-lib/aws-sqs";
+import { Stack, StackProps } from "aws-cdk-lib";
+import { Bucket } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
 export class WebScraperInfraStack extends Stack {
 	constructor(scope: Construct, id: string, props?: StackProps) {
 		super(scope, id, props);
 
-		const queue = new sqs.Queue(this, "WebScraperInfraQueue", {
-			visibilityTimeout: Duration.seconds(300),
-		});
+		const bucket = new Bucket(this, "webscraper-formatted-articles");
 
-		const topic = new sns.Topic(this, "WebScraperInfraTopic");
+		// const queue = new sqs.Queue(this, "WebScraperInfraQueue", {
+		// 	visibilityTimeout: Duration.seconds(300),
+		// });
 
-		topic.addSubscription(new subs.SqsSubscription(queue));
+		// const topic = new sns.Topic(this, "WebScraperInfraTopic");
+
+		// topic.addSubscription(new subs.SqsSubscription(queue));
 	}
 }
