@@ -4,8 +4,10 @@
 		"dev": "dotenv -e ../../.env -- tsx watch entry.dev.ts"
 	},
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.569.0",
 		"@hono/node-server": "^1.11.1",
 		"@newslet/db": "workspace:*",
+		"@newslet/infra-consts": "workspace:^",
 		"drizzle-orm": "^0.30.10",
 		"rss-parser": "^3.13.0"
 	},

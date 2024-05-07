@@ -1,17 +1,34 @@
 import Parser from "rss-parser";
-import { array, type Input, date, object, parse, string, url } from "valibot";
+import {
+	array,
+	type Input,
+	date,
+	object,
+	parse,
+	string,
+	url,
+	parseAsync,
+	optional,
+	variant,
+	literal,
+	any,
+} from "valibot";
 import { type articleInterface, contentInterface } from "../interfaces";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { formattedArticleBucket } from "@newslet/infra-consts";
 
 const aftonbladetRssValidator = array(
 	object({
 		title: string(),
 		link: string([url()]),
 		pubDate: string(),
-		enclosure: object({
-			url: string([url()]),
-			length: string(),
-			type: string(),
-		}),
+		enclosure: optional(
+			object({
+				url: string([url()]),
+				length: string(),
+				type: string(),
+			}),
+		),
 		content: string(),
 		contentSnippet: string(),
 		guid: string(),
@@ -33,6 +50,10 @@ async function parseAftonbladetArticle(
 
 	const abContentContent = Object.entries(response.items)
 		.filter(([key, value]) => {
+			if (typeof value === "string" || typeof key !== "string") {
+				throw new Error("");
+			}
+
 			if (hasPassed) {
 				return false;
 			}
@@ -46,6 +67,7 @@ async function parseAftonbladetArticle(
 			}
 
 			if (hasStarted) {
+				// @ts-expect-error just because
 				return SUPPORTED_CONTENT_TYPE.includes(value.type);
 			}
 
@@ -57,11 +79,31 @@ async function parseAftonbladetArticle(
 			return false;
 		})
 		.map((v) => v[1])
-		.map((thing) => {
+		.map((RAW_thing) => {
+			const thing = parse(
+				variant("type", [
+					object({
+						type: literal("image"),
+						altText: string(),
+						imageAsset: object({
+							urls: any(),
+						}),
+					}),
+					object({
+						type: literal("text"),
+						text: object({ value: string() }),
+						subtype: optional(string()),
+					}),
+				]),
+				RAW_thing,
+			);
+			if (typeof thing === "string") {
+				throw new Error("");
+			}
 			if (thing.type === "image") {
 				return parse(contentInterface, {
 					type: "image",
-					caption: thing?.altText,
+					caption: thing.altText,
 					urls: thing.imageAsset.urls,
 				});
 			}
@@ -99,14 +141,12 @@ export async function fromAftonbladet(): Promise<
 	Input<typeof articleInterface>[]
 > {
 	const parser = new Parser();
-	const rawContent = await parser
-		.parseURL(
-			"https://rss.aftonbladet.se/rss2/small/pages/sections/senastenytt",
-		)
-		.then((v) => v.items);
-	const content = parse(aftonbladetRssValidator, rawContent);
+	const rawContent = await parser.parseURL(
+		"https://rss.aftonbladet.se/rss2/small/pages/sections/senastenytt",
+	);
+	const content = parse(aftonbladetRssValidator, rawContent.items);
 
-	return await Promise.all(
+	const parsedArticles = await Promise.all(
 		content
 			.filter((v) => v.guid.startsWith("article:"))
 			.map(async (article) => {
@@ -115,4 +155,6 @@ export async function fromAftonbladet(): Promise<
 				);
 			}),
 	);
+
+	return parsedArticles;
 }

@@ -7,5 +7,5 @@ app.get("/", async (c) => {
 	return await devServer.fetch();
 });
 
-console.log("serving...")
+console.log("serving...");
 serve(app);
