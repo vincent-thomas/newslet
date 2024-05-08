@@ -1,9 +1,9 @@
 #![warn(
-  clippy::all,
-  clippy::restriction,
-  clippy::pedantic,
-  clippy::nursery,
-  clippy::cargo
+    clippy::all,
+    clippy::restriction,
+    clippy::pedantic,
+    clippy::nursery,
+    clippy::cargo
 )]
 #![allow(clippy::mod_module_files)]
 #![allow(clippy::missing_docs_in_private_items)]
@@ -16,13 +16,25 @@
 #![allow(clippy::single_call_fn)]
 #![allow(clippy::missing_trait_methods)]
 
+use providers::Post;
+
 mod error;
 mod fetcher;
 mod providers;
 mod utils;
+
+fn upload_articles(_articles: Vec<Post>) {}
+
 #[tokio::main]
 async fn main() {
-  let results = fetcher::fetch_all_posts();
+    let results = fetcher::fetch_all_posts();
 
-  dbg!(results);
+    for item in results {
+        match item {
+            Ok(items) => upload_articles(items),
+            Err(err) => {
+                panic!("weird error {err:?}");
+            }
+        };
+    }
 }
