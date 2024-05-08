@@ -1,0 +1,18 @@
+name: Workflow
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt
+          cache: true 
+      - uses: actions-rust-lang/rustfmt@v1
+      - run: cargo clippy
+      - run: cargo build --all
