@@ -1,9 +1,9 @@
 pub(crate) enum FetchArticleError {
-  NotAnArticle,
+    NotAnArticle,
 }
 
 #[derive(Debug)]
 pub enum ParseRSSError {
-  ParseError,
-  FetchRssError,
+    ParseError,
+    FetchRssError,
 }

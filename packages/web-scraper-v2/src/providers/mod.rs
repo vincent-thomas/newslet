@@ -13,13 +13,13 @@ use crate::{error, utils};
 
 #[derive(Debug)]
 pub struct Post {
-    article_id: String,
+    pub article_id: String,
     // Senare
     // category: Vec<String>,
-    title: String,
-    description: Option<String>,
-    published_date: DateTime<Utc>,
-    url: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub published_date: DateTime<Utc>,
+    pub url: String,
 }
 
 pub trait Provider {
